@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IIEF-5 勃起功能评估</title>
+    <style>
+        :root {
+            --primary-color: #007aff;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #888888;
+            --border-color: #e5e5ea;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
+            padding-bottom: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 { font-size: 20px; margin: 0 0 5px 0; color: var(--primary-color); }
+        .header p { font-size: 12px; color: var(--text-muted); margin: 0; }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 13px; margin-bottom: 5px; color: #555; }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+            background-color: #fff;
+            -webkit-appearance: none;
+        }
+        .input-group select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+
+        .question { margin-bottom: 25px; }
+        .question-text {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 8px;
+        }
+        .slider-extremes {
+            font-size: 11px;
+            color: #999;
+        }
+        .current-selection {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--primary-color);
+            background: #eaf2ff;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            margin: 10px 0;
+        }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #e5e5ea;
+            border-radius: 4px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 26px;
+            width: 26px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -9px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        #resultSection { display: none; background: #f8fbff; border: 1px solid #cce0ff; }
+        .score-display { text-align: center; margin: 15px 0; }
+        .score-number { font-size: 36px; font-weight: bold; color: var(--primary-color); }
+        .score-level {
+            display: inline-block; padding: 4px 10px; border-radius: 4px;
+            font-size: 12px; font-weight: bold; margin-top: 5px;
+        }
+        .level-normal { background-color: #d4edda; color: #155724; }
+        .level-mild { background-color: #fff3cd; color: #856404; }
+        .level-moderate { background-color: #ffeeba; color: #856404; }
+        .level-severe { background-color: #f8d7da; color: #721c24; }
+        
+        .toast {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8); color: white; padding: 12px 24px;
+            border-radius: 8px; font-size: 14px; display: none; z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>IIEF-5 勃起功能评估</h1>
+        <p>国际通用简版评估问卷</p>
+    </div>
+
+    <!-- 顶栏：评估时间与患者信息 -->
+    <div class="card">
+        <div class="card-title">基本信息 <span style="font-size:11px; color:#888; font-weight:normal;">（为保证随访准确，请如实填写）</span></div>
+        
+        <div class="input-group">
+            <label for="evalTimeframe">本次评估的时间范围</label>
+            <select id="evalTimeframe">
+                <option value="过去6个月 (常规初诊)">过去6个月 (常规初诊评估)</option>
+                <option value="过去1个月 (用药/术后复查)">过去1个月 (用药/术后近期复查)</option>
+            </select>
+        </div>
+
+        <div class="input-group" style="display: flex; gap: 10px;">
+            <div style="flex: 1;">
+                <label for="patientName">姓名 (必填)</label>
+                <input type="text" id="patientName" placeholder="如：张三">
+            </div>
+            <div style="flex: 1.2;">
+                <label for="patientId">门诊号 (选填)</label>
+                <input type="text" id="patientId" placeholder="如：001234">
+            </div>
+        </div>
+    </div>
+
+    <!-- 问卷主体区 -->
+    <div class="card" id="questionnaireForm">
+        <div class="card-title">症状评估 (滑动选择最符合的情况)</div>
+        <div id="questionsContainer"></div>
+        <button class="btn" onclick="calculateScore()">计算评分</button>
+    </div>
+
+    <!-- 结果与发送区 -->
+    <div class="card" id="resultSection">
+        <div class="card-title" style="text-align: center; border:none; margin-bottom:0;">评估结果</div>
+        <div class="score-display">
+            <div style="font-size: 13px; color: #555;">总分 (1-25)</div>
+            <div class="score-number" id="totalScoreVal">0</div>
+            <div id="scoreLevel" class="score-level">严重程度</div>
+        </div>
+        <button class="btn" style="background-color: #34c759;" id="sendBtn" onclick="sendToDoctor()">一键发送给张医生</button>
+    </div>
+
+    <div class="toast" id="toastMessage">发送成功！</div>
+
+<script>
+    // 选项文字映射字典，利用数组索引与滑块的 value 对应
+    // 第一题是从 1 到 5，所以 0 索引留空
+    const dictQ1 = ["", "极低", "较低", "中等", "较高", "极高"];
+    const dictFreq = ["没有尝试", "几乎没有", "只有几次", "约一半", "大多数时候", "几乎总是"];
+    const dictDiff = ["没有尝试", "极其困难", "非常困难", "困难", "有点困难", "不困难"];
+
+    const questions = [
+        { id: "q1", text: "1. 您对获得和维持勃起的信心如何？", min: 1, max: 5, dict: dictQ1 },
+        { id: "q2", text: "2. 受到性刺激后，您有多少次能够获得足以插入阴道的勃起？", min: 0, max: 5, dict: dictFreq },
+        { id: "q3", text: "3. 插入阴道后，您有多少次能够维持勃起状态？", min: 0, max: 5, dict: dictFreq },
+        { id: "q4", text: "4. 在性交过程中，维持勃起至性交完成有多困难？", min: 0, max: 5, dict: dictDiff },
+        { id: "q5", text: "5. 当您尝试性交时，您有多少次感到满足？", min: 0, max: 5, dict: dictFreq }
+    ];
+
+    function renderQuestions() {
+        const container = document.getElementById("questionsContainer");
+        let html = "";
+
+        questions.forEach((q, index) => {
+            const leftLabel = q.dict[q.min];
+            const rightLabel = q.dict[q.max];
+
+            html += `
+            <div class="question">
+                <div class="question-text">${q.text}</div>
+                <div class="slider-header">
+                    <span class="slider-extremes">${leftLabel}</span>
+                    <span class="current-selection" id="label_${q.id}">${q.dict[q.min]}</span>
+                    <span class="slider-extremes">${rightLabel}</span>
+                </div>
+                <input type="range" id="${q.id}" min="${q.min}" max="${q.max}" value="${q.min}" step="1" oninput="updateLabel('${q.id}', ${index})">
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    // 实时更新滑块上方的文字描述
+    function updateLabel(qId, qIndex) {
+        const val = parseInt(document.getElementById(qId).value);
+        const dict = questions[qIndex].dict;
+        document.getElementById(`label_${qId}`).innerText = dict[val];
+    }
+
+    window.onload = renderQuestions;
+
+    let currentScore = 0;
+    let currentLevelText = "";
+
+    function showToast(msg) {
+        const toast = document.getElementById("toastMessage");
+        toast.innerText = msg;
+        toast.style.display = "block";
+        setTimeout(() => { toast.style.display = "none"; }, 2500);
+    }
+
+    function calculateScore() {
+        let sum = 0;
+        for (let i = 1; i <= 5; i++) {
+            sum += parseInt(document.getElementById(`q${i}`).value);
+        }
+
+        currentScore = sum;
+        document.getElementById("totalScoreVal").innerText = sum;
+        
+        const levelBadge = document.getElementById("scoreLevel");
+        levelBadge.className = "score-level"; 
+        
+        // IIEF-5 评分标准：分数越高越好
+        if (sum >= 22) {
+            levelBadge.innerText = "勃起功能正常 (22-25)";
+            levelBadge.classList.add("level-normal");
+            currentLevelText = "正常";
+        } else if (sum >= 12) {
+            levelBadge.innerText = "轻度障碍 (12-21)";
+            levelBadge.classList.add("level-mild");
+            currentLevelText = "轻度 ED";
+        } else if (sum >= 8) {
+            levelBadge.innerText = "中度障碍 (8-11)";
+            levelBadge.classList.add("level-moderate");
+            currentLevelText = "中度 ED";
+        } else {
+            levelBadge.innerText = "重度障碍 (1-7)";
+            levelBadge.classList.add("level-severe");
+            currentLevelText = "重度 ED";
+        }
+
+        const resultSec = document.getElementById("resultSection");
+        resultSec.style.display = "block";
+        resultSec.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function sendToDoctor() {
+        const timeframe = document.getElementById("evalTimeframe").value;
+        const nameInput = document.getElementById("patientName");
+        const name = nameInput.value.trim(); 
+        const patientId = document.getElementById("patientId").value.trim() || "未填";
+        const btn = document.getElementById("sendBtn");
+
+        if (!name) {
+            showToast("请先填写患者姓名，才能发送哦！");
+            nameInput.focus();
+            return; 
+        }
+
+        if (currentScore === 0 && currentLevelText === "") {
+            showToast("请先点击【计算评分】查看结果后再发送哦！");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = "正在发送...";
+
+        // 默认保留了您在 IPSS 里的 PushPlus Token
+        const token = "943816c765dc45878b369b07a937c1dc"; 
+        
+        const title = "【IIEF-5 门诊随访结果】";
+        const content = `姓名：${name}\n门诊号：${patientId}\n评估时段：${timeframe}\nIIEF-5总分：${currentScore}分 (${currentLevelText})\n提交时间：${new Date().toLocaleString()}`;
+
+        const postData = {
+            token: token,
+            title: title,
+            content: content,
+            template: "txt"
+        };
+
+        // 已替换为 https:// ，完美解决 GitHub Pages 的网络请求异常
+        fetch("https://www.pushplus.plus/send", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(postData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.code === 200) {
+                showToast("发送成功！微信已收到推送。");
+                btn.innerText = "已发送";
+            } else {
+                showToast("发送失败: " + (data.msg || "未知错误"));
+                btn.disabled = false;
+                btn.innerText = "重新发送";
+            }
+        })
+        .catch(error => {
+            showToast("网络请求异常，请检查");
+            btn.disabled = false;
+            btn.innerText = "重新发送";
+        });
+    }
+</script>
+
+</body>
+</html>
